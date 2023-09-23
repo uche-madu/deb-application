@@ -1,0 +1,3 @@
+apache-airflow-providers-google==10.9.0
+astronomer-cosmos[dbt-bigquery]==1.1.1
+airflow_provider_great_expectations==0.2.6
