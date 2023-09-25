@@ -1,4 +1,6 @@
-name: Retag and Push Airflow Image and Update values.yaml
+name: |
+    Retag and Push Airflow Image and Update Values File in 
+    the Infrastructure Repository
 
 on:
     pull_request:
@@ -24,7 +26,7 @@ jobs:
     
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       
       # Configure Workload Identity Federation and generate an access token.
       - id: 'auth'
@@ -50,20 +52,30 @@ jobs:
             docker tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_HEAD_REF" "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$SHORT_SHA"
             docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$SHORT_SHA"
       
+      # Clone the infrastructure repository and change directory to it
+      - name: Checkout Infrastructure Repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'uche-madu/deb-infrastructure'
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          sparse-checkout: |
+            terraform/airflow-helm-values/values-dev.yaml
+          sparse-checkout-cone-mode: false
+
       - name: Update values.yaml in Airflow Helm Chart 
         run: |
-            sed -i "s|repository: .*|repository: $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE|" airflow-helm/values.yaml
-            sed -i "s|tag: .*|tag: $SHORT_SHA|" airflow-helm/values.yaml
+            sed -i "s|repository: .*|repository: $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE|" terraform/airflow-helm-values/values-dev.yaml
+            sed -i "s|tag: .*|tag: $SHORT_SHA|" terraform/airflow-helm-values/values-dev.yaml
       
       - name: Commit changes to values.yaml
         run: |
             git config --local user.email "github-actions[bot]@users.noreply.github.com"
             git config --local user.name "github-actions[bot]"
-            git add airflow-helm/values.yaml
-            git commit -m "Update image repository and tag in values.yaml to $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA"
+            git add terraform/airflow-helm-values/values-dev.yaml
+            git commit -m "Update image repository and tag in values-dev.yaml to $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA"
         
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
+            github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
             branch: ${{ github.head_ref }}
