@@ -9,4 +9,6 @@ COPY requirements.txt .
 RUN python -m venv dbt_venv && source dbt_venv/bin/activate && \
     pip install --no-cache-dir dbt-bigquery && deactivate
 
-RUN pip install --no-cache-dir -r requirements.txt
+USER airflow
+
+RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}" -r /requirements.txt
