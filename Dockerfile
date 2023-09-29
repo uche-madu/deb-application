@@ -9,10 +9,10 @@ WORKDIR /usr/local/airflow
 COPY requirements.txt .
 
 # install dbt into a virtual environment
-RUN python -m venv dbt_venv && \
+RUN set -x && pip install --upgrade pip && \
+    python -m venv dbt_venv && \
     . dbt_venv/bin/activate && \
-    dbt_venv/bin/pip install --upgrade pip && \
-    dbt_venv/bin/pip install --no-cache-dir dbt-bigquery && \
+    pip install --no-cache-dir dbt-bigquery && \
     deactivate
 
 RUN pip install --upgrade pip && \
