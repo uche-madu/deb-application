@@ -1,5 +1,8 @@
+# Define the Airflow version
+ARG AIRFLOW_VERSION=2.7.1
+
 # Using the official Apache Airflow image
-FROM apache/airflow:2.7.1
+FROM apache/airflow:${AIRFLOW_VERSION}
 
 WORKDIR /usr/local/airflow
 
@@ -11,4 +14,4 @@ RUN python -m venv dbt_venv && source dbt_venv/bin/activate && \
 
 USER airflow
 
-RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}" -r /requirements.txt
+RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}" -r requirements.txt
