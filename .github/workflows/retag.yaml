@@ -61,7 +61,9 @@ jobs:
       
       - name: Retag Docker Image
         run: |
-            SHORT_SHA=${GITHUB_SHA::8}
+            echo "SHORT_SHA=${GITHUB_SHA::8}" >> $GITHUB_ENV
+            echo "GITHUB_SHA=$GITHUB_SHA"
+            echo "SHORT_SHA=${GITHUB_SHA::8}"
             docker pull "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$FEATURE_BRANCH_NAME"
             docker tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$FEATURE_BRANCH_NAME" "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$SHORT_SHA"
             docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$SHORT_SHA"
@@ -88,3 +90,5 @@ jobs:
             git add $VALUES_FILE
             git commit -m "Update image repository and tag in values file to $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA"
             git push
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
