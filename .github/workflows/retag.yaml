@@ -3,7 +3,7 @@ name: >
     the Infrastructure Repository
 
 on:
-    pull_request:
+    push:
       branches:
         - main
       types:
@@ -12,7 +12,6 @@ on:
         - 'Dockerfile'
         - 'requirements.txt'
     
-
 env:
     PROJECT_ID: wizeline-deb
     GAR_LOCATION: us-central1
@@ -21,7 +20,6 @@ env:
 
 jobs:
   retag_and_push:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     permissions:
@@ -52,11 +50,22 @@ jobs:
           username: 'oauth2accesstoken'
           password: '${{ steps.auth.outputs.access_token }}'
       
+      - name: Get last merged PR source branch name
+        id: get-branch-name
+        run: |
+          PR_NUMBER=$(gh pr list --base main --state closed --limit 1 --json number -q ".[0].number")
+          FEATURE_BRANCH_NAME=$(gh pr view $PR_NUMBER --json headRefName -q ".headRefName")
+          echo "Last merged PR number: $PR_NUMBER"
+          echo "Source branch name: $FEATURE_BRANCH_NAME"
+          echo "FEATURE_BRANCH_NAME=$FEATURE_BRANCH_NAME" >> $GITHUB_ENV
+        env:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      
       - name: Retag Docker Image
         run: |
             echo "SHORT_SHA=${GITHUB_SHA::8}" >> $GITHUB_ENV
-            docker pull "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_HEAD_REF"
-            docker tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_HEAD_REF" "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$SHORT_SHA"
+            docker pull "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$FEATURE_BRANCH_NAME"
+            docker tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$FEATURE_BRANCH_NAME" "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$SHORT_SHA"
             docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$SHORT_SHA"
       
       # Clone the values file from the infrastructure repository
