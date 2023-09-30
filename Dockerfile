@@ -2,7 +2,7 @@
 ARG AIRFLOW_VERSION=2.7.1
 
 # Using the official Apache Airflow image
-FROM apache/airflow:${AIRFLOW_VERSION}
+FROM apache/airflow:${AIRFLOW_VERSION}  
 
 WORKDIR /usr/local/airflow
 

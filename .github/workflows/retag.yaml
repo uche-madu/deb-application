@@ -15,6 +15,8 @@ env:
     GAR_LOCATION: us-central1
     REPOSITORY: deb-capstone-airflow-gke
     IMAGE: airflow2.7.1-custom
+    VALUES_FILE: argocd-app/helm-charts/airflow/values-dev.yaml
+    SHORT_SHA: ${{ substr(github.sha, 0, 8) }}
 
 jobs:
   retag_and_push:
@@ -23,9 +25,6 @@ jobs:
     permissions:
         contents: 'read'
         id-token: 'write'
-
-    env:
-        VALUES_FILE: argocd-app/helm-charts/airflow/values-dev.yaml
     
     steps:
       - name: Checkout Code
@@ -61,9 +60,6 @@ jobs:
       
       - name: Retag Docker Image
         run: |
-            echo "SHORT_SHA=${GITHUB_SHA::8}" >> $GITHUB_ENV
-            echo "GITHUB_SHA=$GITHUB_SHA"
-            echo "SHORT_SHA=${GITHUB_SHA::8}"
             docker pull "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$FEATURE_BRANCH_NAME"
             docker tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$FEATURE_BRANCH_NAME" "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$SHORT_SHA"
             docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$SHORT_SHA"
