@@ -8,6 +8,10 @@ on:
         - main
       types:
         - closed
+      paths:  # Only run workflow when Dockerfile or requirements.txt is changed
+        - 'Dockerfile'
+        - 'requirements.txt'
+    
 
 env:
     PROJECT_ID: wizeline-deb
@@ -17,7 +21,7 @@ env:
 
 jobs:
   retag_and_push:
-    if: github.event.pull_request.merged == 'true'
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     permissions:

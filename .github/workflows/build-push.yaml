@@ -4,6 +4,9 @@ on:
   push:
     branches-ignore:
       - main
+    paths:  # Only run workflow when Dockerfile or requirements.txt is changed
+      - 'Dockerfile'
+      - 'requirements.txt'
 
 env:
     PROJECT_ID: wizeline-deb
