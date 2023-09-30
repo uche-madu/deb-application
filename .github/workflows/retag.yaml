@@ -61,7 +61,7 @@ jobs:
       
       - name: Retag Docker Image
         run: |
-            echo "SHORT_SHA=${GITHUB_SHA::8}" >> $GITHUB_ENV
+            SHORT_SHA=${GITHUB_SHA::8}
             docker pull "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$FEATURE_BRANCH_NAME"
             docker tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$FEATURE_BRANCH_NAME" "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$SHORT_SHA"
             docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$SHORT_SHA"
