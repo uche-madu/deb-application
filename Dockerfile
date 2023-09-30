@@ -8,7 +8,7 @@ WORKDIR /usr/local/airflow
 
 COPY requirements.txt .
 
-# install dbt into a virtual environment to use external python operator
+# Install dbt into a virtual environment to use the ExternalPythonOperator
 # The sed command allows pip to avoid running with --user flag
 RUN python -m venv dbt_venv && \
     sed -i 's/include-system-site-packages = false/include-system-site-packages = true/' dbt_venv/pyvenv.cfg && \
