@@ -1,13 +1,11 @@
 name: >
-    Retag and Push Airflow Image and Update Values File in 
+    Retag Airflow Image and Update Values File in 
     the Infrastructure Repository
 
 on:
     push:
       branches:
         - main
-      types:
-        - closed
       paths:  # Only run workflow when Dockerfile or requirements.txt is changed
         - 'Dockerfile'
         - 'requirements.txt'
@@ -93,4 +91,4 @@ jobs:
         uses: ad-m/github-push-action@v0.6.0
         with:
             github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-            branch: ${{ github.head_ref }}
+            branch: 'main'
