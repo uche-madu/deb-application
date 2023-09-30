@@ -16,7 +16,6 @@ env:
     REPOSITORY: deb-capstone-airflow-gke
     IMAGE: airflow2.7.1-custom
     VALUES_FILE: argocd-app/helm-charts/airflow/values-dev.yaml
-    SHORT_SHA: ${{ substr(github.sha, 0, 8) }}
 
 jobs:
   retag_and_push:
@@ -57,6 +56,10 @@ jobs:
           echo "FEATURE_BRANCH_NAME=$FEATURE_BRANCH_NAME" >> $GITHUB_ENV
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      
+      - name: Set SHORT_SHA
+        run: |
+          echo "SHORT_SHA=${GITHUB_SHA::8}" >> $GITHUB_ENV
       
       - name: Retag Docker Image
         run: |
