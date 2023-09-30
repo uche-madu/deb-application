@@ -74,6 +74,7 @@ jobs:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           sparse-checkout: ${{ env.VALUES_FILE }}
           sparse-checkout-cone-mode: false
+          ref: 'develop'
 
       - name: Update values file in Airflow Helm Chart 
         run: |
@@ -86,9 +87,4 @@ jobs:
             git config --local user.name "github-actions[bot]"
             git add $VALUES_FILE
             git commit -m "Update image repository and tag in values file to $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA"
-        
-      - name: Push changes
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-            github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-            branch: 'main'
+            git push
