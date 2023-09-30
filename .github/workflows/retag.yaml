@@ -57,7 +57,7 @@ jobs:
           echo "Source branch name: $FEATURE_BRANCH_NAME"
           echo "FEATURE_BRANCH_NAME=$FEATURE_BRANCH_NAME" >> $GITHUB_ENV
         env:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       
       - name: Retag Docker Image
         run: |
