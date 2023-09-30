@@ -84,8 +84,8 @@ jobs:
       
       - name: Commit changes to values file
         run: |
-            git config --local user.email "dreemer6@yahoo.com"
-            git config --local user.name "Uche Madu"
+            git config --local user.email "${{ secrets.GIT_USER_EMAIL }}"
+            git config --local user.name "${{ secrets.GIT_USER_NAME }}"
             git add $VALUES_FILE
             git commit -m "Update image repository and tag in values file to $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA"
             git push
