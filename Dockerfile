@@ -12,7 +12,7 @@ COPY requirements.txt .
 RUN python -m venv dbt_venv && \
     sed -i 's/include-system-site-packages = false/include-system-site-packages = true/' dbt_venv/pyvenv.cfg && \
     . dbt_venv/bin/activate && \
-    pip install --upgrade pip && \
+    # pip install --upgrade pip && \
     pip install --no-cache-dir dbt-bigquery && \
     deactivate
 
