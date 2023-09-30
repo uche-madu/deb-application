@@ -1,5 +1,5 @@
 # Define the Airflow version
-ARG AIRFLOW_VERSION=2.7.1
+ARG AIRFLOW_VERSION=2.7.1 
 
 # Using the official Apache Airflow image
 FROM apache/airflow:${AIRFLOW_VERSION} 
