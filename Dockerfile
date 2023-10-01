@@ -1,4 +1,4 @@
-# Define the Airflow version
+# Define the Airflow version  
 ARG AIRFLOW_VERSION=2.7.1 
 
 # Using the official Apache Airflow image
