@@ -15,7 +15,7 @@ env:
     GAR_LOCATION: us-central1
     REPOSITORY: deb-capstone-airflow-gke
     IMAGE: airflow2.7.1-custom
-    VALUES_FILE: argocd-app/helm-charts/airflow/values-dev.yaml
+    VALUES_FILE: argocd-app/my-airflow/values-dev.yaml
 
 jobs:
   retag_and_push:
