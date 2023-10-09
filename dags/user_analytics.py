@@ -32,29 +32,6 @@ PYSPARK_JOB_PATH = f"gs://{BUCKET_NAME}/pyspark-scripts/"
 PIP_INIT_FILE= f"gs://{BUCKET_NAME}/dataproc-initialization-actions/python/v1.0/pip-install.sh"
 # CONNECTOR_INIT_FILE='gs://${BUCKET_NAME}/dataproc-initialization-actions/connectors/v1.0/connectors.sh'
 
-CLUSTER_GENERATOR_CONFIG = ClusterGenerator(
-    project_id=PROJECT_ID,
-    zone=ZONE,
-    master_machine_type="n1-standard-4",
-    master_disk_size=16,
-    worker_machine_type="n1-standard-2",
-    worker_disk_size=16,
-    num_workers=2,
-    storage_bucket=BUCKET_NAME,
-    init_actions_uris=[PIP_INIT_FILE],
-    metadata={"PIP_PACKAGES": "spark-nlp==5.1.2 google-cloud-storage==1.6.0 transformers==4.25.1 tensorflow==2.11.0"},
-    properties={
-        'spark:spark.serializer': 'org.apache.spark.serializer.KryoSerializer',
-        'spark:spark.driver.maxResultSize': '0',
-        'spark:spark.kryoserializer.buffer.max': '2000M',
-        'spark:spark.jars.packages': 'com.johnsnowlabs.nlp:spark-nlp_2.12:5.1.2',
-        'spark:spark.jars': 'gs://spark-lib/bigquery/spark-bigquery-with-dependencies_2.12-0.32.2.jar'
-    },
-    num_preemptible_workers=1,
-    preemptibility="PREEMPTIBLE",
-    gcp_conn_id=GCP_CONN_ID,
-).make()
-
 create_schema_and_table_query="""
             CREATE SCHEMA IF NOT EXISTS user_analytics;
             CREATE TABLE IF NOT EXISTS user_analytics.user_purchase (
@@ -223,6 +200,29 @@ def movie_analytics_dag() -> None:
         Task group that handles the creation of a Dataproc cluster, processing of movie reviews and log reviews,
         and deletion of the Dataproc cluster.
         """
+
+        CLUSTER_GENERATOR_CONFIG = ClusterGenerator(
+            project_id=PROJECT_ID,
+            zone=ZONE,
+            master_machine_type="n1-standard-4",
+            master_disk_size=16,
+            worker_machine_type="n1-standard-2",
+            worker_disk_size=16,
+            num_workers=2,
+            storage_bucket=BUCKET_NAME,
+            init_actions_uris=[PIP_INIT_FILE],
+            metadata={"PIP_PACKAGES": "spark-nlp==5.1.2 google-cloud-storage==1.6.0 transformers==4.25.1 tensorflow==2.11.0"},
+            properties={
+                'spark:spark.serializer': 'org.apache.spark.serializer.KryoSerializer',
+                'spark:spark.driver.maxResultSize': '0',
+                'spark:spark.kryoserializer.buffer.max': '2000M',
+                'spark:spark.jars.packages': 'com.johnsnowlabs.nlp:spark-nlp_2.12:5.1.2',
+                'spark:spark.jars': 'gs://spark-lib/bigquery/spark-bigquery-with-dependencies_2.12-0.32.2.jar'
+            },
+            num_preemptible_workers=1,
+            preemptibility="PREEMPTIBLE",
+            gcp_conn_id=GCP_CONN_ID,
+        ).make()
 
         create_dataproc_cluster = DataprocCreateClusterOperator(
             task_id="create_dataproc_cluster",
