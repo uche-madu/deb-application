@@ -1,10 +1,3 @@
-import pendulum
-import requests
-import csv
-import logging
-import pandas as pd
-from datetime import datetime
-
 from airflow.decorators import dag, task, task_group
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
@@ -75,6 +68,12 @@ def movie_analytics_dag() -> None:
     """
     Defines the movie analytics DAG which processes user purchase data and performs tasks on Dataproc.
     """
+    import pendulum
+    import requests
+    import csv
+    import logging
+    import pandas as pd
+    from datetime import datetime
    
     @task_group(group_id="user_purchase_raw_to_stg")
     def user_purchase_raw_to_stg() -> None:
