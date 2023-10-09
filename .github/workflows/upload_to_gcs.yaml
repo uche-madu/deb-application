@@ -2,10 +2,13 @@ name: Upload PySpark Scripts to GCS
 
 on:
   push:
+    # Branch protection is configured in the Github repo to prevent 
+    # direct push to the main branch
     branches-ignore:
       - main
     paths:
       - 'pyspark-scripts/**'
+  workflow-dispatch:
 
 jobs:
   upload-to-gcs:
