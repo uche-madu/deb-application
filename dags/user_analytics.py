@@ -205,6 +205,7 @@ def movie_analytics_dag() -> None:
             destination_project_dataset_table=f'{BQ_DATASET}.{USER_PURCHASE_TABLE}',
             create_disposition='CREATE_IF_NEEDED',
             write_disposition='WRITE_TRUNCATE',
+            gcp_conn_id=GCP_CONN_ID,
         )
         
         # task dependencies
@@ -228,6 +229,7 @@ def movie_analytics_dag() -> None:
             cluster_name=CLUSTER_NAME,
             region=REGION,
             cluster_config=CLUSTER_GENERATOR_CONFIG,
+            gcp_conn_id=GCP_CONN_ID,
         )
 
         process_movie_reviews = DataprocSubmitPySparkJobOperator(
@@ -239,6 +241,7 @@ def movie_analytics_dag() -> None:
                 PYSPARK_JOB_PATH + "config.py",
                 PYSPARK_JOB_PATH + "gcs_utils.py"
             ],
+            gcp_conn_id=GCP_CONN_ID,
         )
 
         process_log_reviews = DataprocSubmitPySparkJobOperator(
@@ -250,12 +253,14 @@ def movie_analytics_dag() -> None:
                 PYSPARK_JOB_PATH + "config.py",
                 PYSPARK_JOB_PATH + "gcs_utils.py"
             ],
+            gcp_conn_id=GCP_CONN_ID,
         )
 
         delete_dataproc_cluster = DataprocDeleteClusterOperator(
             task_id="delete_dataproc_cluster",
             cluster_name=CLUSTER_NAME,
             region=REGION,
+            gcp_conn_id=GCP_CONN_ID,
         )
 
         # Define task dependencies
