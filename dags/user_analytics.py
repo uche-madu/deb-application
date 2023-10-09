@@ -85,6 +85,10 @@ insert_user_purchase_query = """
             ON CONFLICT (invoice_number, stock_code) DO NOTHING;
             """
 
+extract_user_purchase_query = """
+            SELECT * FROM <schema>.user_purchase;
+            """
+
 @dag(
     schedule='@daily', 
     start_date=pendulum.datetime(2023, 10, 2, tz="UTC"), 
