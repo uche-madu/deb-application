@@ -8,7 +8,7 @@ on:
       - main
     paths:
       - 'pyspark-scripts/**'
-  workflow-dispatch:
+  workflow_dispatch:
 
 jobs:
   upload-to-gcs:
