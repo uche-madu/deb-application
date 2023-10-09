@@ -14,23 +14,23 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
-  steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-    
-    # Configure Workload Identity Federation
-    - id: 'auth'
-      name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v1'
-      with:
-          # Replace with values based on setup.sh in dev-infrastructure repo
-          workload_identity_provider: 'projects/734911192367/locations/global/workloadIdentityPools/deb-pool/providers/github-actions'
-          service_account: 'deb-sa@wizeline-deb.iam.gserviceaccount.com'
-    
-    # Install gcloud, `setup-gcloud` automatically picks up authentication from `auth`.
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v1'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      # Configure Workload Identity Federation
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+            # Replace with values based on setup.sh in dev-infrastructure repo
+            workload_identity_provider: 'projects/734911192367/locations/global/workloadIdentityPools/deb-pool/providers/github-actions'
+            service_account: 'deb-sa@wizeline-deb.iam.gserviceaccount.com'
+      
+      # Install gcloud, `setup-gcloud` automatically picks up authentication from `auth`.
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
 
-    - name: Upload scripts to GCS
-      run: |
-        gsutil rsync -r pyspark-scripts gs://deb-capstone/pyspark-scripts
+      - name: Upload scripts to GCS
+        run: |
+          gsutil rsync -r pyspark-scripts gs://deb-capstone/pyspark-scripts
