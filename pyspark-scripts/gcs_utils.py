@@ -161,4 +161,3 @@ def get_spark(
     builder.config("spark.kryoserializer.buffer.max", "2000M")
     builder.config("spark.driver.maxResultSize", "0")
     return builder.getOrCreate()
-
