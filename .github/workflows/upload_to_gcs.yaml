@@ -4,7 +4,7 @@ on:
   push:
     # Branch protection is configured in the Github repo to prevent 
     # direct push to the main branch
-    branches-ignore:
+    branches:
       - main
     paths:
       - 'pyspark-scripts/**'
