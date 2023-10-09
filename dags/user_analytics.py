@@ -1,3 +1,5 @@
+import pendulum
+
 from airflow.decorators import dag, task, task_group
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
@@ -68,7 +70,7 @@ def movie_analytics_dag() -> None:
     """
     Defines the movie analytics DAG which processes user purchase data and performs tasks on Dataproc.
     """
-    import pendulum
+
     import requests
     import csv
     import logging
