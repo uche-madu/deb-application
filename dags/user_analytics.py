@@ -1,14 +1,14 @@
 import pendulum
 
 from airflow.decorators import dag, task, task_group
-from airflow.providers.postgres.operators.postgres import PostgresOperator
+from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.providers.google.cloud.hooks.gcs import GCSHook
 from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
 from airflow.providers.google.cloud.operators.dataproc import (
     ClusterGenerator,
     DataprocCreateClusterOperator,
-    DataprocSubmitPySparkJobOperator,
+    DataprocSubmitJobOperator,
     DataprocDeleteClusterOperator
 )
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
@@ -18,6 +18,7 @@ POSTGRES_CONN_ID='POSTGRES'
 BUCKET_NAME='deb-capstone'
 BQ_DATASET='movie_analytics'
 USER_PURCHASE_TABLE='user_purchase_stg'
+DB_NAME='deb-airflow-db'
 CLUSTER_NAME = 'deb-capstone'
 PROJECT_ID = 'wizeline-deb'
 REGION = 'us-central1'
@@ -83,10 +84,11 @@ def movie_analytics_dag() -> None:
         Task group that handles the extraction, transformation, and loading of user purchase data.
         """
 
-        create_schema_and_table = PostgresOperator(
+        create_schema_and_table = SQLExecuteQueryOperator(
             task_id='create_schema_and_table',
             sql=create_schema_and_table_query,
-            postgres_conn_id=POSTGRES_CONN_ID
+            hook_params={'schema': DB_NAME},
+            conn_id=POSTGRES_CONN_ID
         )
 
         @task
@@ -233,27 +235,45 @@ def movie_analytics_dag() -> None:
             gcp_conn_id=GCP_CONN_ID,
         )
 
-        process_movie_reviews = DataprocSubmitPySparkJobOperator(
+        # Define the PySpark job configuration for process_movie_reviews
+        movie_reviews_job = {
+            "reference": {"job_id": "{{task.task_id}}_{{ds_nodash}}_{{ts_nodash}}"},
+            "placement": {"cluster_name": CLUSTER_NAME},
+            "pyspark_job": {
+                "main_python_file_uri": PYSPARK_JOB_PATH + "process_movies.py",
+                "python_file_uris": [
+                    PYSPARK_JOB_PATH + "config.py",
+                    PYSPARK_JOB_PATH + "gcs_utils.py"
+                ],
+            },
+        }
+
+        process_movie_reviews = DataprocSubmitJobOperator(
             task_id="process_movie_reviews",
-            main=PYSPARK_JOB_PATH + "process_movies.py",
-            cluster_name=CLUSTER_NAME,
             region=REGION,
-            pyfiles=[
-                PYSPARK_JOB_PATH + "config.py",
-                PYSPARK_JOB_PATH + "gcs_utils.py"
-            ],
+            project_id=PROJECT_ID,
+            job=movie_reviews_job,
             gcp_conn_id=GCP_CONN_ID,
         )
 
-        process_log_reviews = DataprocSubmitPySparkJobOperator(
+        # Define the PySpark job configuration for process_log_reviews
+        log_reviews_job = {
+            "reference": {"job_id": "{{task.task_id}}_{{ds_nodash}}_{{ts_nodash}}"},
+            "placement": {"cluster_name": CLUSTER_NAME},
+            "pyspark_job": {
+                "main_python_file_uri": PYSPARK_JOB_PATH + "process_logs.py",
+                "python_file_uris": [
+                    PYSPARK_JOB_PATH + "config.py",
+                    PYSPARK_JOB_PATH + "gcs_utils.py"
+                ],
+            },
+        }
+
+        process_log_reviews = DataprocSubmitJobOperator(
             task_id="process_log_reviews",
-            cluster_name=CLUSTER_NAME,
             region=REGION,
-            main=PYSPARK_JOB_PATH + "process_logs.py",
-            pyfiles=[
-                PYSPARK_JOB_PATH + "config.py",
-                PYSPARK_JOB_PATH + "gcs_utils.py"
-            ],
+            project_id=PROJECT_ID,
+            job=log_reviews_job,
             gcp_conn_id=GCP_CONN_ID,
         )
 
