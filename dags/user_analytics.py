@@ -95,7 +95,7 @@ def movie_analytics_dag() -> None:
     Defines the movie analytics DAG which processes user purchase data and performs tasks on Dataproc.
     """
    
-    @taskgroup(group_id="user_purchase_raw_to_stg")
+    @task_group(group_id="user_purchase_raw_to_stg")
     def user_purchase_raw_to_stg() -> None:
         """
         Task group that handles the extraction, transformation, and loading of user purchase data.
