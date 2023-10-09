@@ -235,7 +235,7 @@ def movie_analytics_dag() -> None:
             main=PYSPARK_JOB_PATH + "process_movies.py",
             cluster_name=CLUSTER_NAME,
             region=REGION,
-            py_files=[
+            pyfiles=[
                 PYSPARK_JOB_PATH + "config.py",
                 PYSPARK_JOB_PATH + "gcs_utils.py"
             ],
@@ -246,7 +246,7 @@ def movie_analytics_dag() -> None:
             cluster_name=CLUSTER_NAME,
             region=REGION,
             main=PYSPARK_JOB_PATH + "process_logs.py",
-            py_files=[
+            pyfiles=[
                 PYSPARK_JOB_PATH + "config.py",
                 PYSPARK_JOB_PATH + "gcs_utils.py"
             ],
