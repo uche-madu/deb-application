@@ -156,7 +156,6 @@ def get_spark(
     
     builder = SparkSession.builder.appName(name).master(master)
     builder.config('spark.jars.packages', ",".join(SPARK_JARS))
-    builder.config("spark.driver.memory", "16G")
     builder.config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     builder.config("spark.kryoserializer.buffer.max", "2000M")
     builder.config("spark.driver.maxResultSize", "0")
