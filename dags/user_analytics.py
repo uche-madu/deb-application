@@ -59,7 +59,7 @@ insert_user_purchase_query = """
             """
 
 extract_user_purchase_query = """
-            SELECT * FROM <schema>.user_purchase;
+            SELECT * FROM user_analytics.user_purchase;
             """
 
 @dag(
@@ -87,7 +87,7 @@ def movie_analytics_dag() -> None:
         create_schema_and_table = SQLExecuteQueryOperator(
             task_id='create_schema_and_table',
             sql=create_schema_and_table_query,
-            hook_params={'schema': DB_NAME},
+            hook_params={'database': DB_NAME},
             conn_id=POSTGRES_CONN_ID
         )
 
