@@ -13,7 +13,7 @@ from airflow.providers.google.cloud.operators.dataproc import (
 )
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 
-GCP_CONN_ID='GCP1'
+GCP_CONN_ID='gcp1'
 POSTGRES_CONN_ID='POSTGRES'
 BUCKET_NAME='deb-capstone'
 BQ_DATASET='movie_analytics'
