@@ -6,7 +6,7 @@ FROM apache/airflow:${AIRFLOW_VERSION}
 
 WORKDIR /usr/local/airflow
 
-COPY requirements.txt .
+COPY requirements.txt . 
 
 # Install dbt into a virtual environment for use in ExternalPythonOperator
 # The sed command allows pip to avoid running with --user flag in the virtual environment

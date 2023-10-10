@@ -11,7 +11,7 @@ SPARK_JARS = ["com.google.cloud.spark:spark-bigquery-with-dependencies_2.12:0.32
 
 # Define BigQuery dataset and table
 BQ_DATASET_NAME = "movie_analytics"
-BQ_MOVIE_REVIEWS_TABLE = "movie_review_stg"
+BQ_MOVIE_REVIEWS_TABLE = "movie_review_stg" 
 BQ_LOG_REVIEWS_TABLE = "log_stg"
 
 LOG_FILES = "{}/project-data/log_reviews".format(GCS_BUCKET)
