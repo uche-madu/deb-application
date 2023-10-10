@@ -207,10 +207,10 @@ def movie_analytics_dag() -> None:
         CLUSTER_GENERATOR_CONFIG = ClusterGenerator(
             project_id=PROJECT_ID,
             zone=ZONE,
-            master_machine_type="n1-standard-4",
-            master_disk_size=16,
+            master_machine_type="n1-standard-2",
+            master_disk_size=32,
             worker_machine_type="n1-standard-2",
-            worker_disk_size=16,
+            worker_disk_size=32,
             num_workers=2,
             storage_bucket=BUCKET_NAME,
             init_actions_uris=[PIP_INIT_FILE],
