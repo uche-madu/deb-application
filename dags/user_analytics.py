@@ -211,7 +211,7 @@ def movie_analytics_dag() -> None:
             master_disk_size=32,
             worker_machine_type="n1-standard-2",
             worker_disk_size=32,
-            num_workers=2,
+            num_workers=1,
             storage_bucket=BUCKET_NAME,
             init_actions_uris=[PIP_INIT_FILE],
             metadata={"PIP_PACKAGES": "spark-nlp==5.1.2 google-cloud-storage==1.6.0 transformers==4.25.1 tensorflow==2.11.0"},
