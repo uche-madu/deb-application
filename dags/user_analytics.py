@@ -72,11 +72,8 @@ def movie_analytics_dag() -> None:
     Defines the movie analytics DAG which processes user purchase data and performs tasks on Dataproc.
     """
 
-    import requests
-    import csv
     import logging
     import pandas as pd
-    from datetime import datetime
    
     @task_group(group_id="user_purchase_raw_to_stg")
     def user_purchase_raw_to_stg() -> None:
@@ -237,7 +234,7 @@ def movie_analytics_dag() -> None:
 
         # Define the PySpark job configuration for process_movie_reviews
         movie_reviews_job = {
-            "reference": {"job_id": "{{task.task_id}}_{{ds_nodash}}_{{ts_nodash}}"},
+            "reference": {"job_id": "{{task}}_{{task_id}}_{{ds_nodash}}_{{ts_nodash}}"},
             "placement": {"cluster_name": CLUSTER_NAME},
             "pyspark_job": {
                 "main_python_file_uri": PYSPARK_JOB_PATH + "process_movies.py",
@@ -258,7 +255,7 @@ def movie_analytics_dag() -> None:
 
         # Define the PySpark job configuration for process_log_reviews
         log_reviews_job = {
-            "reference": {"job_id": "{{task.task_id}}_{{ds_nodash}}_{{ts_nodash}}"},
+            "reference": {"job_id": "{{task}}_{{task_id}}_{{ds_nodash}}_{{ts_nodash}}"},
             "placement": {"cluster_name": CLUSTER_NAME},
             "pyspark_job": {
                 "main_python_file_uri": PYSPARK_JOB_PATH + "process_logs.py",
