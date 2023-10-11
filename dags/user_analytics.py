@@ -71,7 +71,7 @@ def movie_analytics_dag() -> None:
     """
     Defines the movie analytics DAG which processes user purchase data and performs tasks on Dataproc.
     """
-
+    import io
     import logging
     import pandas as pd
    
@@ -96,11 +96,20 @@ def movie_analytics_dag() -> None:
             """
             try:
                 gcs_hook = GCSHook(gcp_conn_id=GCP_CONN_ID)
-                file_handle = gcs_hook.download(
+
+                # Setting filename=None so that the gcs_hook.download method 
+                # will return the file content as bytes, which can be processed 
+                # in-memory without writing to disk. This is to prevent having large 
+                # files saved to disk.
+
+                file_bytes = gcs_hook.download(
                     bucket_name=BUCKET_NAME, 
                     object_name='project-data/user_purchases/user_purchase.csv', 
                     filename=None
                 )
+        
+                # Convert bytes to a file-like object
+                file_handle = io.BytesIO(file_bytes)
                 
                 # Read CSV data into a pandas DataFrame in chunks in case of large files
                 chunks = pd.read_csv(file_handle, chunksize=50_000)
