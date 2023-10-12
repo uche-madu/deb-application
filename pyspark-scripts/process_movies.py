@@ -211,7 +211,8 @@ def main() -> None:
         result_df = (result_df
             .withColumnRenamed("cid", "user_id")
             .withColumnRenamed("id_review", "review_id")
-            .select("user_id", "positive_review", "review_id"))
+            .withColumn("insert_date", F.current_timestamp())
+            .select("user_id", "positive_review", "review_id", "insert_date"))
         
         # Save the DataFrame to BigQuery
         (result_df.write.format("bigquery")

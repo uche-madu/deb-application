@@ -1,0 +1,70 @@
+version: 2
+
+models:
+  - name: stg_review_logs
+    description: "Staged review log data"
+    columns:
+      - name: log_id
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null 
+      - name: log_date
+        description: "Date the review was made"
+      - name: device
+        description: "Device used to make the review"
+      - name: os
+        description: "Operating system of the device used to make the review"
+      - name: location
+        description: "Location of the reviewer"
+      - name: ip
+        description: "IP address of the reviewer"
+      - name: phone_number
+        description: "Phone number of the reviewer"
+  
+  - name: stg_classified_movie_review
+    description: "Table with classified sentiment of movie reviews"
+    columns:
+      - name: user_id
+        description: "Primary key for this table & foreign key to stg_user_purchase.customer_id"
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              field: customer_id
+              to: ref('stg_user_purchase')
+      - name: positive_review
+        description: "Classification of movie review"
+        tests:
+          - accepted_values: 
+              values: [0, 1]
+      - name: review_id
+        description: "ID of the review"
+      - name: insert_date
+        description:  "Timestamp of when the review was classified in the data pipeline" 
+   
+  - name: stg_user_purchase
+    description: "Details about purchases made my customers"
+    columns:
+      - name: invoice_number
+        description: "Invoice number of the purchase & one part of composite primary key of this table"
+        tests:
+          - not_null
+      - name: stock_code
+        description: "Stock code of the item purchased & one part of composite primary key of this table"
+        tests:
+          - not_null
+      - name: detail
+        description: "Description of the item purchased"
+      - name: quantity
+        description: "Quantity of the item purchased"
+      - name: invoice_date
+        description: "Date (Timestamp) the purchase invoice for the item was generated"
+      - name: unit_price
+        description: "Unit price of the item purchased in USD"
+      - name: customer_id
+        description: "Customer ID of the purchasing user"
+        tests:
+          - not_null
+      - name: country
+        description: "Country from where the user purchased the item"

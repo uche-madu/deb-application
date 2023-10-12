@@ -1,0 +1,12 @@
+deb_capstone:
+  outputs:
+    dev:
+      dataset: movie_analytics
+      job_retries: 1
+      location: US
+      method: oauth
+      priority: interactive
+      project: wizeline-deb
+      threads: 11
+      type: bigquery
+  target: dev

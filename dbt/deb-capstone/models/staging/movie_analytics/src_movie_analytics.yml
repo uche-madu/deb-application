@@ -1,0 +1,46 @@
+version: 2
+
+sources:
+  - name: movie_analytics
+    database: deb-capstone
+    schema: movie_analytics
+    description: Movie review analysis with user logs and purchase data
+    tables:
+      - name: user_purchase
+        description: Preprocessed user purchase data from Postgres
+        columns:
+          - name: invoice_number
+            description: The part of primary key of the user_purchase table
+            tests:
+              - not_null
+          - name: stock_code
+            description: The part of primary key of the user_purchase table
+            tests:
+              - not_null
+      
+      - name: classified_movie_review
+        description: Preprocessed movie reviews with sentiment classification
+        columns: 
+          - name: review_id
+            description: Primary key of the movie review staging table
+            tests:
+              - unique
+              - not_null
+          - name: positive_review
+            description: Sentiment classification of the movie review
+          - name: user_id
+            description: ID of the user who left a review
+          - name: insert_date
+            description: Timestamp of when the review was classified in the data pipeline 
+      
+      - name: review_logs
+        description: Preprocessed user log data
+        columns:
+          - name: log_id
+            description: Primary key of the review logs staging table
+            tests:
+              - unique
+              - not_null
+
+      
+        
