@@ -8,13 +8,7 @@ ARG AIRFLOW_VERSION
 
 WORKDIR /usr/local/airflow
 
-# Install dbt into a virtual environment
-# The sed command allows pip to avoid running with --user flag in the virtual environment
-RUN python -m venv dbt_venv && \
-    sed -i 's/include-system-site-packages = false/include-system-site-packages = true/' dbt_venv/pyvenv.cfg && \
-    . dbt_venv/bin/activate && \
-    pip install --no-cache-dir dbt-bigquery && \
-    deactivate
+USER root
 
 RUN mkdir /root/.dbt
 COPY profiles.yml /root/.dbt
@@ -22,6 +16,15 @@ COPY profiles.yml /root/.dbt
 RUN mkdir -p dags/dbt/deb-capstone
 COPY dbt/deb-capstone/dbt_project.yml dags/dbt/deb-capstone
 COPY dbt/deb-capstone/ dags/dbt/deb-capstone
+
+USER airflow
+# Install dbt into a virtual environment
+# The sed command allows pip to avoid running with --user flag in the virtual environment
+RUN python -m venv dbt_venv && \
+    sed -i 's/include-system-site-packages = false/include-system-site-packages = true/' dbt_venv/pyvenv.cfg && \
+    . dbt_venv/bin/activate && \
+    pip install --no-cache-dir dbt-bigquery && \
+    deactivate
 
 COPY requirements.txt . 
 
