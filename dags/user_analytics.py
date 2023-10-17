@@ -1,4 +1,5 @@
 import pendulum
+from pathlib import Path
 
 from airflow.decorators import dag, task, task_group
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
@@ -13,8 +14,17 @@ from airflow.providers.google.cloud.operators.dataproc import (
 )
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 
-GCP_CONN_ID='gcp1'
-POSTGRES_CONN_ID='POSTGRES'
+from cosmos import (
+    DbtTaskGroup, 
+    ProjectConfig, 
+    ProfileConfig, 
+    ExecutionConfig,
+    ExecutionMode
+)
+from cosmos.profiles import GoogleCloudOauthProfileMapping
+
+GCP_CONN_ID='gcp'
+POSTGRES_CONN_ID='postgres'
 BUCKET_NAME='deb-capstone'
 BQ_DATASET='movie_analytics'
 USER_PURCHASE_TABLE='user_purchase_stg'
@@ -61,6 +71,23 @@ insert_user_purchase_query = """
 extract_user_purchase_query = """
             SELECT * FROM user_analytics.user_purchase;
             """
+
+def get_secret(project_id, secret_id, version_id="latest"):
+
+    # Borrowed from the codelab: https://codelabs.developers.google.com/codelabs/secret-manager-python#6
+    from google.cloud import secretmanager
+
+    # Create the Secret Manager client.
+    client = secretmanager.SecretManagerServiceClient()
+
+    # Build the resource name of the secret version.
+    name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
+
+    # Access the secret version.
+    response = client.access_secret_version(request={"name": name})
+
+    # Return the decoded payload.
+    return response.payload.data.decode("UTF-8")
 
 @dag(
     schedule='@daily', 
@@ -201,7 +228,7 @@ def movie_analytics_dag() -> None:
         load_to_postgres >> get_user_purchase_data
         get_user_purchase_data >> load_gcs_to_stg
         
-    user_purchase_raw_to_stg()
+    user_purchase_raw_to_stg = user_purchase_raw_to_stg()
 
     @task_group(group_id="dataproc_tasks")
     def dataproc_tasks() -> None:
@@ -213,20 +240,20 @@ def movie_analytics_dag() -> None:
         CLUSTER_GENERATOR_CONFIG = ClusterGenerator(
             project_id=PROJECT_ID,
             zone=ZONE,
-            master_machine_type="n1-standard-2",
+            master_machine_type="n2-standard-2",
             master_disk_size=32,
-            worker_machine_type="n1-standard-2",
+            worker_machine_type="n2-standard-2",
             worker_disk_size=32,
             num_workers=2,
             storage_bucket=BUCKET_NAME,
             init_actions_uris=[PIP_INIT_FILE],
-            metadata={"PIP_PACKAGES": "spark-nlp==5.1.2 google-cloud-storage==1.6.0 transformers==4.25.1 tensorflow==2.11.0"},
+            metadata={"PIP_PACKAGES": "spark-nlp==5.1.2 google-cloud-storage==2.12.0 transformers==4.25.1 tensorflow==2.11.0"},
             properties={
                 'spark:spark.serializer': 'org.apache.spark.serializer.KryoSerializer',
                 'spark:spark.driver.maxResultSize': '0',
                 'spark:spark.kryoserializer.buffer.max': '2000M',
                 'spark:spark.jars.packages': 'com.johnsnowlabs.nlp:spark-nlp_2.12:5.1.2',
-                'spark:spark.jars': 'gs://spark-lib/bigquery/spark-bigquery-with-dependencies_2.12-0.32.2.jar'
+                'spark:spark.jars': 'gs://spark-lib/bigquery/spark-bigquery-with-dependencies_2.12-0.32.2.jar',
             },
             num_preemptible_workers=1,
             preemptibility="PREEMPTIBLE",
@@ -293,6 +320,38 @@ def movie_analytics_dag() -> None:
         # Define task dependencies
         create_dataproc_cluster >> [process_movie_reviews, process_log_reviews] >> delete_dataproc_cluster.as_teardown(setups=create_dataproc_cluster)
     
-    dataproc_tasks()
+    dataproc_tasks = dataproc_tasks() 
+
+    # The path to the dbt project   
+    DBT_PROJECT_PATH = Path("/usr/local/airflow/dags/dbt/deb-capstone")
+    # The path where Cosmos will find the dbt executable
+    # in the virtual environment created in the Dockerfile
+    DBT_EXECUTABLE_PATH = Path("/usr/local/airflow/dbt_venv/bin/dbt")
+    profile_config = ProfileConfig(
+        profile_name="deb-capstone",
+        target_name="dev",
+        profile_mapping = GoogleCloudOauthProfileMapping(
+            conn_id = GCP_CONN_ID,
+            profile_args = {
+                "project": PROJECT_ID, 
+                "dataset": BQ_DATASET,
+            },
+        )
+    )
+
+    execution_config = ExecutionConfig(
+        dbt_executable_path=DBT_EXECUTABLE_PATH,
+    )
+
+    transform_data = DbtTaskGroup(
+        group_id="create_fact_and_dim_tables",
+        project_config=ProjectConfig(DBT_PROJECT_PATH),
+        profile_config=profile_config,
+        execution_config=execution_config,
+        default_args={"retries": 2},
+    )
+        
+    user_purchase_raw_to_stg >> transform_data
+    dataproc_tasks >> transform_data
 
 movie_analytics_dag()

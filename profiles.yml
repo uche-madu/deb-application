@@ -1,12 +1,12 @@
 deb_capstone:
+  target: dev
   outputs:
     dev:
+      type: bigquery
+      project: wizeline-deb
       dataset: movie_analytics
-      job_retries: 1
       location: US
       method: oauth
-      priority: interactive
-      project: wizeline-deb
-      threads: 11
-      type: bigquery
-  target: dev
+      token: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
+      job_retries: 1
+      threads: 12

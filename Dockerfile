@@ -4,9 +4,11 @@ ARG AIRFLOW_VERSION=2.7.2
 # Using the official Apache Airflow image 
 FROM apache/airflow:${AIRFLOW_VERSION}  
 
+ARG AIRFLOW_VERSION
+
 WORKDIR /usr/local/airflow
 
-# Install dbt into a virtual environment for use in ExternalPythonOperator
+# Install dbt into a virtual environment
 # The sed command allows pip to avoid running with --user flag in the virtual environment
 RUN python -m venv dbt_venv && \
     sed -i 's/include-system-site-packages = false/include-system-site-packages = true/' dbt_venv/pyvenv.cfg && \

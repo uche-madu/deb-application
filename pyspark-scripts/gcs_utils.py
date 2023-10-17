@@ -1,7 +1,25 @@
-from google.cloud import storage
+# Import gcs using an alias to avoid conflict with sparknlp.common.storage
+import google.cloud.storage as gcs_storage
 from typing import List
 from pyspark.sql import DataFrame, SparkSession
 from config import SPARK_JARS
+
+
+def check_file_exists(bucket_name: str, file_name: str) -> bool:
+    """
+    Check whether a file exists in a bucket.
+
+    Args:
+        bucket_name (str): Name of the bucket.
+        file_name (str): Name of the 'file' to check.
+
+    Returns:
+        bool: True if the file exists, False otherwise.
+    """
+    storage_client = gcs_storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(file_name)
+    return blob.exists()
 
 def initialize_metadata_file(bucket_name: str, metadata_file_path: str) -> None:
     """
@@ -14,7 +32,7 @@ def initialize_metadata_file(bucket_name: str, metadata_file_path: str) -> None:
     Returns:
         None
     """
-    storage_client = storage.Client()
+    storage_client = gcs_storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(metadata_file_path)
     
@@ -32,7 +50,7 @@ def list_files_in_gcs(bucket_name: str, prefix: str) -> list:
     Returns:
         list: List of file paths in the specified GCS bucket directory.
     """
-    storage_client = storage.Client()
+    storage_client = gcs_storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blobs = bucket.list_blobs(prefix=prefix)
     
@@ -49,7 +67,7 @@ def get_processed_files(bucket_name: str, metadata_file_path: str) -> set:
     Returns:
         set: Set of processed file paths.
     """
-    storage_client = storage.Client()
+    storage_client = gcs_storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(metadata_file_path)
     
@@ -72,7 +90,7 @@ def update_processed_files(bucket_name: str, metadata_file_path: str, processed_
     processed_files = get_processed_files(bucket_name, metadata_file_path)
     processed_files.add(processed_file)
     
-    storage_client = storage.Client()
+    storage_client = gcs_storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(metadata_file_path)
     
