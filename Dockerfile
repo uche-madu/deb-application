@@ -19,8 +19,9 @@ RUN python -m venv dbt_venv && \
 RUN mkdir /root/.dbt
 COPY profiles.yml /root/.dbt
 
-RUN mkdir -p dags/dbt
-COPY dbt/dbt_project.yml dags/dbt
+RUN mkdir -p dags/dbt/deb-capstone
+COPY dbt/deb-capstone/dbt_project.yml dags/dbt/deb-capstone
+COPY dbt/deb-capstone/ dags/dbt/deb-capstone
 
 COPY requirements.txt . 
 
