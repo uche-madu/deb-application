@@ -3,7 +3,6 @@
 import tempfile
 import os
 import shutil
-from google.cloud import storage
 
 from transformers import TFBertForSequenceClassification, BertTokenizer 
 import tensorflow as tf
@@ -15,7 +14,11 @@ from sparknlp.base import *
 import pyspark.sql.functions as F
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 
-from gcs_utils import load_files_from_gcs, get_spark
+from gcs_utils import (
+    load_files_from_gcs, 
+    get_spark, 
+    check_file_exists
+    )
 
 # Import configuration variables
 from config import (
@@ -33,22 +36,6 @@ from config import (
 
 # Initialize Spark session
 spark = get_spark(name="Sentiment Analysis of Movie Reviews")
-
-def check_file_exists(bucket_name: str, file_name: str) -> bool:
-    """
-    Check whether a file exists in a bucket.
-
-    Args:
-        bucket_name (str): Name of the bucket.
-        file_name (str): Name of the 'file' to check.
-
-    Returns:
-        bool: True if the file exists, False otherwise.
-    """
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(file_name)
-    return blob.exists()
 
 def download_and_prep_sentiment_model() -> None:
     """
@@ -211,7 +198,8 @@ def main() -> None:
         result_df = (result_df
             .withColumnRenamed("cid", "user_id")
             .withColumnRenamed("id_review", "review_id")
-            .select("user_id", "positive_review", "review_id"))
+            .withColumn("insert_date", F.current_timestamp())
+            .select("user_id", "positive_review", "review_id", "insert_date"))
         
         # Save the DataFrame to BigQuery
         (result_df.write.format("bigquery")

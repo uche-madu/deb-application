@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: fact_movie_analytics
+    description: Fact table for downstream movie analytics
+    columns: 
+      - name: fact_key
+        description: Unique surrogate key for the table
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Natural Customer ID of the customer from the stg_user_purchase table
+      - name: id_dim_devices
+        description: Unique surrogate key of the device used to make a review in the dim_devices dimension table
+        tests:
+          - unique
+          - not_null
+      - name: id_dim_location
+        description: Unique surrogate key of the location of the reviewer in the dim_location dimension table
+        tests:
+          - unique
+          - not_null
+      - name: id_dim_devices
+        description: Unique surrogate key of the operating system of the reviewer's device in the dim_os dimension table
+        tests:
+          - unique
+          - not_null
+      - name: amount_spent
+        description: Total amount in USD spent by the customer on item purchases
+      - name: review_score
+        description: Aggregate sentiment of the customer's movie reviews
+      - name: review_count
+        description: Total number of movie reviews by the customer
+      - name: insert_date
+        description: "Timestamp of when the customer's movie review was classified in the data processing pipeline as having a positive (1) or negative (0) sentiment."

@@ -45,11 +45,11 @@ def main():
             col("id_review").alias("log_id"),
             regexp_extract(col("log"), "<logDate>(.*?)</logDate>", 1).alias("log_date"),
             regexp_extract(col("log"), "<device>(.*?)</device>", 1).alias("device"),
-            regexp_extract(col("log"), "<os>(.*?)</os>", 1).alias("OS"),
+            regexp_extract(col("log"), "<os>(.*?)</os>", 1).alias("os"),
             regexp_extract(col("log"), "<location>(.*?)</location>", 1).alias("location"),
             # Assuming browser information is present in the XML (not present in the log file)
             # regexp_extract(col("log"), "<browser>(.*?)</browser>", 1).alias("browser"),
-            regexp_extract(col("log"), "<ipAddress>(.*?)</ipAddress>", 1).alias("IP"),
+            regexp_extract(col("log"), "<ipAddress>(.*?)</ipAddress>", 1).alias("ip"),
             regexp_extract(col("log"), "<phoneNumber>(.*?)</phoneNumber>", 1).alias("phone_number")
         )
 

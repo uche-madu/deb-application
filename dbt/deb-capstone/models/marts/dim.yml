@@ -1,0 +1,125 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: Dimension table with date information from the review_logs table
+    columns:
+      - name: id_dim_date
+        description: Unique surrogate key of the table
+        tests:
+          - unique
+          - not_null
+      - name: log_date
+        description: Full date from the review logs table
+      - name: day
+        description: Day of the month extracted from log_date column
+      - name: month
+        description: Month extracted from log_date column
+      - name: year
+        description: Year extracted from log_date column
+      - name: season
+        description: Season extracted from log_date column
+      - name: user_id
+        description: Foreign key to stg_classified_movie_review.user_id
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              field: user_id
+              to: ref('stg_classified_movie_review')
+  
+  - name: dim_device
+    description: Dimension table with device information from the review_logs table
+    columns: 
+      - name: id_dim_devices
+        description: Unique surrogate key of the table
+        tests:
+          - unique
+          - not_null
+      - name: device
+        description: Device from the review_logs table
+      - name: user_id
+        description: Foreign key to stg_classified_movie_review.user_id
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              field: user_id
+              to: ref('stg_classified_movie_review')
+  
+  - name: dim_ip
+    description: Dimension table with IP Address information from the review_logs table
+    columns:
+      - name: id_dim_ip
+        description: Unique surrogate key of the table
+        tests:
+          - unique
+          - not_null
+      - name: ip
+        description: IP Address from the review_logs table
+      - name: user_id
+        description: Foreign key to stg_classified_movie_review.user_id
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              field: user_id
+              to: ref('stg_classified_movie_review')
+  
+  - name: dim_location
+    description: Dimension table with location information from the review_logs table
+    columns:
+      - name: id_dim_location
+        description: Unique surrogate key of the table
+        tests:
+          - unique
+          - not_null
+      - name: location
+        description: Location from the review_logs table
+      - name: user_id
+        description: Foreign key to stg_classified_movie_review.user_id
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              field: user_id
+              to: ref('stg_classified_movie_review')
+
+  - name: dim_os
+    description: Dimension table with Operating System (OS) information from the review_logs table
+    columns:
+      - name: id_dim_os
+        description: Unique surrogate key of the table
+        tests:
+          - unique
+          - not_null
+      - name: os
+        description: OS from the review_logs table
+      - name: user_id
+        description: Foreign key to stg_classified_movie_review.user_id
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              field: user_id
+              to: ref('stg_classified_movie_review')
+  
+  - name: dim_phone_number
+    description: Dimension table with phone number from the review_logs table
+    columns:
+      - name: id_dim_phone_number
+        description: Unique surrogate key of the table
+        tests:
+          - unique
+          - not_null
+      - name: phone_number
+        description: Phone number from the review_logs table
+      - name: user_id
+        description: Foreign key to stg_classified_movie_review.user_id
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              field: user_id
+              to: ref('stg_classified_movie_review')
+        
