@@ -1,6 +1,3 @@
-from dags.user_analytics import BUCKET_NAME
-
-
 GCS_BUCKET = "deb-capstone"
 MOVIE_FILES = "{}/project-data/movie_reviews".format(GCS_BUCKET)
 MOVIES_METADATA_FILE_PATH = "{}/project-data/movie_reviews/processed_files_metadata.txt".format(GCS_BUCKET)
