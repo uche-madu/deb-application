@@ -1,6 +1,9 @@
+from dags.user_analytics import BUCKET_NAME
+
+
 GCS_BUCKET = "deb-capstone"
 MOVIE_FILES = "{}/project-data/movie_reviews".format(GCS_BUCKET)
-MOVIES_METADATA_FILE_PATH = "{}/processed_files_metadata.txt".format(MOVIE_FILES)
+MOVIES_METADATA_FILE_PATH = "{}/project-data/movie_reviews/processed_files_metadata.txt".format(GCS_BUCKET)
 MODEL_DIR = "{}/models/sentiment_spark_nlp".format(GCS_BUCKET)
 
 # My HuggingFace sentiment model fine-tuned using IMDb movie reviews dataset.
@@ -15,4 +18,4 @@ BQ_MOVIE_REVIEWS_TABLE = "classified_movie_review"
 BQ_LOG_REVIEWS_TABLE = "review_logs"
 
 LOG_FILES = "{}/project-data/log_reviews".format(GCS_BUCKET)
-LOG_METADATA_FILE_PATH = "{}/processed_files_metadata.txt".format(LOG_FILES)
+LOG_METADATA_FILE_PATH = "{}/project-data/log_reviews/processed_files_metadata.txt".format(GCS_BUCKET)
