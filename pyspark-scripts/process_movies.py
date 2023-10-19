@@ -204,7 +204,7 @@ def main() -> None:
         # Save the DataFrame to BigQuery
         (result_df.write.format("bigquery")
             .option("temporaryGcsBucket", GCS_BUCKET)
-            .option("partitionField", "insert_date")
+            # .option("partitionField", "insert_date")
             .mode("append")
             .save(f"{BQ_DATASET_NAME}.{BQ_MOVIE_REVIEWS_TABLE}")
             )

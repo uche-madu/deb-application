@@ -56,7 +56,7 @@ def main():
     # Save the DataFrame to BigQuery
     (log_df_parsed.write.format("bigquery")
         .option("temporaryGcsBucket", GCS_BUCKET)
-        .option("partitionField", "log_date")
+        # .option("partitionField", "day")
         .mode("append")
         .save(f"{BQ_DATASET_NAME}.{BQ_LOG_REVIEWS_TABLE}")
         )
