@@ -3,16 +3,16 @@ import os
 GCS_BUCKET = "deb-capstone"
 
 # Data directories
-MOVIE_FILES = os.path.join(GCS_BUCKET, "project-data", "movie_reviews")
-LOG_FILES = os.path.join(GCS_BUCKET, "project-data", "log_reviews")
+MOVIE_FILES = os.path.join("project-data", "movie_reviews")
+LOG_FILES = os.path.join("project-data", "log_reviews")
 
 # Metadata directories
-METADATA_DIR = os.path.join(GCS_BUCKET, "project-data", "metadata")
+METADATA_DIR = os.path.join("project-data", "metadata")
 MOVIES_METADATA_FILE_PATH = os.path.join(METADATA_DIR, "movie_reviews_metadata.txt")
 LOG_METADATA_FILE_PATH = os.path.join(METADATA_DIR, "log_reviews_metadata.txt")
 
 # Model directory
-MODEL_DIR = os.path.join(GCS_BUCKET, "models", "sentiment_spark_nlp")
+MODEL_DIR = os.path.join("models", "sentiment_spark_nlp")
 
 # My HuggingFace sentiment model fine-tuned using IMDb movie reviews dataset.
 MODEL_NAME = "dreemer6/bert-finetuned-sst2"
