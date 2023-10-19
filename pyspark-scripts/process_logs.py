@@ -3,7 +3,11 @@
 from pyspark.sql.functions import col, regexp_extract
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 
-from gcs_utils import load_files_from_gcs, get_spark
+from gcs_utils import (
+    load_files_from_gcs, 
+    get_spark, 
+    update_processed_files
+    )
     
 from config import (
     GCS_BUCKET, 
@@ -30,7 +34,7 @@ def main():
     }
 
     # Load log reviews file(s) from GCS
-    dataframes = load_files_from_gcs(
+    dataframes, new_files = load_files_from_gcs(
             spark=spark,
             bucket_name=GCS_BUCKET,
             directory_path=LOG_FILES,
@@ -60,6 +64,13 @@ def main():
             .mode("append")
             .save(f"{BQ_DATASET_NAME}.{BQ_LOG_REVIEWS_TABLE}")
             )
+    
+    # After successful load into BigQuery, add the processed file 
+    # to the metadata file
+    for file in new_files:
+        update_processed_files(GCS_BUCKET, LOG_METADATA_FILE_PATH, file)
+        
+
 
 if __name__ == "__main__":
     main()
