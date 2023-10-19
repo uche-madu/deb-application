@@ -1,6 +1,6 @@
 # Import gcs using an alias to avoid conflict with sparknlp.common.storage
 import google.cloud.storage as gcs_storage
-from typing import List
+from typing import List, Tuple
 from pyspark.sql import DataFrame, SparkSession
 from config import SPARK_JARS
 
@@ -104,7 +104,7 @@ def load_files_from_gcs(
     metadata_file_path: str,
     file_format: str = "csv",
     read_options: dict = None
-) -> List[DataFrame]:
+) -> Tuple[List[DataFrame], List[str]]:
     """
     Load new files from a GCS directory into Spark DataFrames.
 
@@ -117,7 +117,7 @@ def load_files_from_gcs(
         read_options (dict, optional): Additional options for reading files into Spark.
 
     Returns:
-        List[DataFrame]: List of Spark DataFrames loaded from new files in GCS.
+        Tuple[List[DataFrame], List[str]]: List of Spark DataFrames loaded from new files in GCS and list of new files.
     """
     
     # Initialize the metadata file the first time
@@ -141,10 +141,7 @@ def load_files_from_gcs(
         
         dataframes.append(df)
 
-        # Update the metadata file with the list of newly processed files
-        update_processed_files(bucket_name, metadata_file_path, file)
-
-    return dataframes
+    return dataframes, new_files
 
 # If there are conflicts, the cluster-level settings defined in
 # CLUSTER_GENERATOR_CONFIG in the Airflow DAG script will take precedence.

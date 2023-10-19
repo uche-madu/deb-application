@@ -16,7 +16,8 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 
 from gcs_utils import (
     load_files_from_gcs, 
-    get_spark, 
+    get_spark,
+    update_processed_files, 
     check_file_exists
     )
 
@@ -166,7 +167,7 @@ def main() -> None:
     }
 
     # Load movie reviews file(s) from GCS
-    dataframes = load_files_from_gcs(
+    dataframes, new_files = load_files_from_gcs(
         spark=spark,
         bucket_name=GCS_BUCKET, 
         directory_path=MOVIE_FILES, 
@@ -208,7 +209,11 @@ def main() -> None:
             .mode("append")
             .save(f"{BQ_DATASET_NAME}.{BQ_MOVIE_REVIEWS_TABLE}")
             )
-
+    
+    # After successful load into BigQuery, add the processed file 
+    # to the metadata file
+    for file in new_files:
+        update_processed_files(GCS_BUCKET, MOVIES_METADATA_FILE_PATH, file)
 
 if __name__ == "__main__":
     main()
