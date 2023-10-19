@@ -55,9 +55,10 @@ def main():
 
     # Save the DataFrame to BigQuery
     (log_df_parsed.write.format("bigquery")
-        .option("table", f"{BQ_DATASET_NAME}.{BQ_LOG_REVIEWS_TABLE}")
+        .option("temporaryGcsBucket", GCS_BUCKET)
+        .option("partitionField", "log_date")
         .mode("append")
-        .save()
+        .save(f"{BQ_DATASET_NAME}.{BQ_LOG_REVIEWS_TABLE}")
         )
 
 if __name__ == "__main__":
