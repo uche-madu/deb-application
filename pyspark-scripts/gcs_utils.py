@@ -137,7 +137,7 @@ def load_files_from_gcs(
         # Load data from GCS
         df = (spark.read.format(file_format)
               .options(**(read_options or {}))
-              .load(f"gs://{bucket_name}/{file}"))
+              .load(f"gs://{file}"))
         
         dataframes.append(df)
 
