@@ -53,13 +53,13 @@ def main():
             regexp_extract(col("log"), "<phoneNumber>(.*?)</phoneNumber>", 1).alias("phone_number")
         )
 
-    # Save the DataFrame to BigQuery
-    (log_df_parsed.write.format("bigquery")
-        .option("temporaryGcsBucket", GCS_BUCKET)
-        # .option("partitionField", "day")
-        .mode("append")
-        .save(f"{BQ_DATASET_NAME}.{BQ_LOG_REVIEWS_TABLE}")
-        )
+        # Save the DataFrame to BigQuery
+        (log_df_parsed.write.format("bigquery")
+            .option("temporaryGcsBucket", GCS_BUCKET)
+            # .option("partitionField", "day")
+            .mode("append")
+            .save(f"{BQ_DATASET_NAME}.{BQ_LOG_REVIEWS_TABLE}")
+            )
 
 if __name__ == "__main__":
     main()
