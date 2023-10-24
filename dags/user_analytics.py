@@ -122,7 +122,7 @@ def movie_analytics_dag() -> None:
                 file_handle = io.BytesIO(file_bytes)
                 
                 # Read CSV data into a pandas DataFrame in chunks in case of large files
-                chunks = pd.read_csv(file_handle, chunksize=50_000)
+                chunks = pd.read_csv(file_handle, chunksize=100_000)
 
                 for df in chunks:
 
