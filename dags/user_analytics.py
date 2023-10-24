@@ -72,23 +72,6 @@ extract_user_purchase_query = """
             SELECT * FROM user_analytics.user_purchase;
             """
 
-def get_secret(project_id, secret_id, version_id="latest"):
-
-    # Borrowed from the codelab: https://codelabs.developers.google.com/codelabs/secret-manager-python#6
-    from google.cloud import secretmanager
-
-    # Create the Secret Manager client.
-    client = secretmanager.SecretManagerServiceClient()
-
-    # Build the resource name of the secret version.
-    name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
-
-    # Access the secret version.
-    response = client.access_secret_version(request={"name": name})
-
-    # Return the decoded payload.
-    return response.payload.data.decode("UTF-8")
-
 @dag(
     schedule='@daily', 
     start_date=pendulum.datetime(2023, 10, 2, tz="UTC"), 
@@ -178,7 +161,7 @@ def movie_analytics_dag() -> None:
                     df['quantity'] = df['quantity'].astype(int)
                     df['invoice_date'] = pd.to_datetime(df['invoice_date'], format='%m/%d/%Y %H:%M', errors='coerce')
                     df['unit_price'] = df['unit_price'].astype(float)
-                    df['customer_id'] = df['CustomerID'].astype(int)
+                    df['customer_id'] = df['customer_id'].astype(int)
                     df['country'] = df['country'].astype(str)
                     
                     # Convert DataFrame to list of tuples
