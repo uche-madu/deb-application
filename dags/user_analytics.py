@@ -27,7 +27,7 @@ GCP_CONN_ID='gcp'
 POSTGRES_CONN_ID='postgres'
 BUCKET_NAME='deb-capstone'
 BQ_DATASET='movie_analytics'
-USER_PURCHASE_TABLE='user_purchase_stg'
+USER_PURCHASE_TABLE='user_purchase'
 DB_NAME='deb-airflow-db'
 CLUSTER_NAME = 'deb-capstone'
 PROJECT_ID = 'wizeline-deb'
@@ -122,7 +122,7 @@ def movie_analytics_dag() -> None:
                 file_handle = io.BytesIO(file_bytes)
                 
                 # Read CSV data into a pandas DataFrame in chunks in case of large files
-                chunks = pd.read_csv(file_handle, chunksize=100_000)
+                chunks = pd.read_csv(file_handle, chunksize=1_000_000)
 
                 for df in chunks:
 
@@ -275,7 +275,7 @@ def movie_analytics_dag() -> None:
 
         # Define the PySpark job configuration for process_movie_reviews
         movie_reviews_job = {
-            "reference": {"job_id": "{{task}}_{{ti}}_{{ts_nodash}}"},
+            "reference": {"job_id": "{{ task_instance.task_id }}_{{ ts_nodash }}"},
             "placement": {"cluster_name": CLUSTER_NAME},
             "pyspark_job": {
                 "main_python_file_uri": PYSPARK_JOB_PATH + "process_movies.py",
@@ -296,7 +296,7 @@ def movie_analytics_dag() -> None:
 
         # Define the PySpark job configuration for process_log_reviews
         log_reviews_job = {
-            "reference": {"job_id": "{{task}}_{{ti}}_{{ts_nodash}}"},
+            "reference": {"job_id": "{{ task_instance.task_id }}_{{ ts_nodash }}"},
             "placement": {"cluster_name": CLUSTER_NAME},
             "pyspark_job": {
                 "main_python_file_uri": PYSPARK_JOB_PATH + "process_logs.py",
