@@ -195,7 +195,7 @@ def movie_analytics_dag() -> None:
         load_gcs_to_stg = GCSToBigQueryOperator(
             task_id='load_user_purchase_from_gcs_to_stg',
             bucket=BUCKET_NAME,
-            source_objects=['project_data/user_purchases/processed_user_purchase.csv'],
+            source_objects=['project_data/user_purchases/processed_user_purchase'],
             source_format='CSV',
             skip_leading_rows=1,  # ignore the header row
             destination_project_dataset_table=f'{BQ_DATASET}.{USER_PURCHASE_TABLE}',
