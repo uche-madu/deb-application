@@ -40,7 +40,6 @@ PIP_INIT_FILE= f"gs://{BUCKET_NAME}/dataproc-initialization-actions/python/v1.0/
 
 create_schema_and_table_query="""
             CREATE SCHEMA IF NOT EXISTS user_analytics;
-            DROP TABLE IF EXISTS user_analytics.user_purchase;
             CREATE TABLE IF NOT EXISTS user_analytics.user_purchase (
                 id SERIAL PRIMARY KEY,
                 invoice_number varchar(10),
@@ -188,16 +187,16 @@ def movie_analytics_dag() -> None:
             gcp_conn_id=GCP_CONN_ID,
             sql=extract_user_purchase_query,
             bucket=BUCKET_NAME,
-            filename="project_data/user_purchase/processed_user_purchase",
-            export_format="parquet",
+            filename="project_data/user_purchases/processed_user_purchase",
+            export_format="csv",
             gzip=False,
         )
 
         load_gcs_to_stg = GCSToBigQueryOperator(
             task_id='load_user_purchase_from_gcs_to_stg',
             bucket=BUCKET_NAME,
-            source_objects=['project_data/user_purchase/processed_user_purchase.parquet'],
-            source_format='PARQUET',
+            source_objects=['project_data/user_purchases/processed_user_purchase.csv'],
+            source_format='CSV',
             skip_leading_rows=1,  # ignore the header row
             destination_project_dataset_table=f'{BQ_DATASET}.{USER_PURCHASE_TABLE}',
             create_disposition='CREATE_IF_NEEDED',
