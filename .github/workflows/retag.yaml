@@ -79,8 +79,8 @@ jobs:
 
       - name: Update values file in Airflow Helm Chart 
         run: |
-            sed -i "s|repository: .*|repository: $GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE|" $VALUES_FILE
-            sed -i "s|tag: .*|tag: $SHORT_SHA|" $VALUES_FILE
+            sed -i "s|repository: .*|repository: '$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE'|" $VALUES_FILE
+            sed -i "s|tag: .*|tag: '$SHORT_SHA'|" $VALUES_FILE
       
       - name: Commit changes to values file
         run: |
