@@ -40,7 +40,9 @@ PIP_INIT_FILE= f"gs://{BUCKET_NAME}/dataproc-initialization-actions/python/v1.0/
 
 create_schema_and_table_query="""
             CREATE SCHEMA IF NOT EXISTS user_analytics;
+            DROP TABLE IF EXISTS user_analytics.user_purchase;
             CREATE TABLE IF NOT EXISTS user_analytics.user_purchase (
+                id SERIAL PRIMARY KEY,
                 invoice_number varchar(10),
                 stock_code varchar(20),
                 detail varchar(1000),
@@ -48,8 +50,7 @@ create_schema_and_table_query="""
                 invoice_date timestamp,
                 unit_price numeric(8,3),
                 customer_id int,
-                country varchar(20),
-                PRIMARY KEY (invoice_number, stock_code)
+                country varchar(20)
             );
             """
 
