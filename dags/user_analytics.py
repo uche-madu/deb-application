@@ -237,11 +237,34 @@ def movie_analytics_dag() -> None:
         and deletion of the Dataproc cluster.
         """
 
+        
+        # VIRTUAL_CLUSTER_CONFIG = {
+        #     "kubernetes_cluster_config": {
+        #         "gke_cluster_config": {
+        #             "gke_cluster_target": f"projects/{PROJECT_ID}/locations/{REGION}/clusters/{CLUSTER_NAME}",
+        #             "node_pool_target": [
+        #                 {
+        #                     "node_pool": f"projects/{PROJECT_ID}/locations/{REGION}/clusters/{CLUSTER_NAME}/nodePools/dp",  # noqa
+        #                     "roles": ["DEFAULT"],
+        #                     "node_pool_config": {
+        #                         "config": {
+        #                             "preemptible": True,
+        #                         }
+        #                     },
+        #                 }
+        #             ],
+        #         },
+        #         "kubernetes_software_config": {"component_version": {"SPARK": b"3"}},
+        #     },
+        #     "staging_bucket": "test-staging-bucket",
+        # }
+
+
         CLUSTER_GENERATOR_CONFIG = ClusterGenerator(
             project_id=PROJECT_ID,
             master_machine_type="n2-standard-4",
             master_disk_size=32,
-            worker_machine_type="n2-standard-2",
+            worker_machine_type="n2-standard-4",
             worker_disk_size=32,
             num_workers=2,
             storage_bucket=BUCKET_NAME,
