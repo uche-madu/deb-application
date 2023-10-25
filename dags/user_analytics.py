@@ -247,7 +247,7 @@ def movie_analytics_dag() -> None:
             project_id=PROJECT_ID,
             master_machine_type="n2-standard-4",
             master_disk_size=32,
-            worker_machine_type="n2-standard-4",
+            worker_machine_type="n2-standard-2",
             worker_disk_size=32,
             num_workers=2,
             storage_bucket=BUCKET_NAME,
@@ -275,7 +275,7 @@ def movie_analytics_dag() -> None:
 
         # Define the PySpark job configuration for process_movie_reviews
         movie_reviews_job = {
-            "reference": {"job_id": "{{ task_instance.task_id }}_{{ ts_nodash }}"},
+            "reference": {"job_id": "{{ task_instance }}_{{ ts_nodash }}"},
             "placement": {"cluster_name": CLUSTER_NAME},
             "pyspark_job": {
                 "main_python_file_uri": PYSPARK_JOB_PATH + "process_movies.py",
@@ -296,7 +296,7 @@ def movie_analytics_dag() -> None:
 
         # Define the PySpark job configuration for process_log_reviews
         log_reviews_job = {
-            "reference": {"job_id": "{{ task_instance.task_id }}_{{ ts_nodash }}"},
+            "reference": {"job_id": "{{ task_instance }}_{{ ts_nodash }}"},
             "placement": {"cluster_name": CLUSTER_NAME},
             "pyspark_job": {
                 "main_python_file_uri": PYSPARK_JOB_PATH + "process_logs.py",
