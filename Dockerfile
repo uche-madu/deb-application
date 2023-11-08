@@ -1,5 +1,5 @@
 # Define the Airflow version  
-ARG AIRFLOW_VERSION=2.7.2
+ARG AIRFLOW_VERSION=2.7.3
 
 # Using the official Apache Airflow image 
 FROM apache/airflow:${AIRFLOW_VERSION}  
@@ -8,7 +8,7 @@ ARG AIRFLOW_VERSION
 
 WORKDIR /usr/local/airflow
 
-USER root
+USER root 
 
 RUN mkdir /root/.dbt
 COPY profiles.yml /root/.dbt

@@ -14,7 +14,7 @@ env:
     PROJECT_ID: wizeline-deb
     GAR_LOCATION: us-central1
     REPOSITORY: deb-capstone-airflow-gke
-    IMAGE: airflow2.7.1-custom
+    IMAGE: airflow2.7.3-custom
     VALUES_FILE: argocd-app/my-airflow/values-dev.yaml
 
 jobs:

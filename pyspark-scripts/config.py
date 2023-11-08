@@ -1,7 +1,7 @@
 import os
 
 GCS_BUCKET = "deb-capstone"
-
+   
 # Data directories
 MOVIE_FILES = os.path.join("project-data", "movie_reviews")
 LOG_FILES = os.path.join("project-data", "log_reviews")
