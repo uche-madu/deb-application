@@ -1,9 +1,12 @@
 # Import gcs using an alias to avoid conflict with sparknlp.common.storage
+import io
+import pandas as pd
 import google.cloud.storage as gcs_storage
 from typing import List, Tuple
 from pyspark.sql import DataFrame, SparkSession
 from config import SPARK_JARS
 
+storage_client = gcs_storage.Client()
 
 def check_file_exists(bucket_name: str, file_name: str) -> bool:
     """
@@ -16,12 +19,16 @@ def check_file_exists(bucket_name: str, file_name: str) -> bool:
     Returns:
         bool: True if the file exists, False otherwise.
     """
-    storage_client = gcs_storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(file_name)
-    return blob.exists()
+    exists = blob.exists()
+    if exists:
+        print(f"File '{file_name}' exists in bucket '{bucket_name}'.")
+    else:
+        print(f"File '{file_name}' does not exist in bucket '{bucket_name}'.")
+    return exists
 
-def initialize_metadata_file(bucket_name: str, metadata_file_path: str) -> None:
+def initialize_metadata_file(bucket_name: str, metadata_file_path: str, initial_content: str = "") -> None:
     """
     Initialize the metadata file in GCS if it doesn't exist.
     
@@ -32,12 +39,14 @@ def initialize_metadata_file(bucket_name: str, metadata_file_path: str) -> None:
     Returns:
         None
     """
-    storage_client = gcs_storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(metadata_file_path)
     
     if not blob.exists():
-        blob.upload_from_string("")
+        blob.upload_from_string(initial_content)
+        print(f"Initialized metadata file '{metadata_file_path}' with initial content.")
+    else:
+        print(f"Metadata file '{metadata_file_path}' already exists.")
 
 def list_files_in_gcs(bucket_name: str, prefix: str) -> list:
     """
@@ -50,7 +59,6 @@ def list_files_in_gcs(bucket_name: str, prefix: str) -> list:
     Returns:
         list: List of file paths in the specified GCS bucket directory.
     """
-    storage_client = gcs_storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blobs = bucket.list_blobs(prefix=prefix)
     
@@ -67,7 +75,6 @@ def get_processed_files(bucket_name: str, metadata_file_path: str) -> set:
     Returns:
         set: Set of processed file paths.
     """
-    storage_client = gcs_storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(metadata_file_path)
     
@@ -90,7 +97,6 @@ def update_processed_files(bucket_name: str, metadata_file_path: str, processed_
     processed_files = get_processed_files(bucket_name, metadata_file_path)
     processed_files.add(processed_file)
     
-    storage_client = gcs_storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(metadata_file_path)
     
@@ -103,43 +109,51 @@ def load_files_from_gcs(
     directory_path: str,
     metadata_file_path: str,
     file_format: str = "csv",
-    read_options: dict = None
+    read_options: dict = None,
+    chunk_size: int = 1_000_000
 ) -> Tuple[List[DataFrame], List[str]]:
     """
-    Load new files from a GCS directory into Spark DataFrames.
-
+    Load new files from a GCS directory in chunks into Spark DataFrames.
+    
     Args:
         spark (SparkSession): The Spark session.
         bucket_name (str): Name of the GCS bucket.
         directory_path (str): Directory path in the GCS bucket.
         metadata_file_path (str): Path to the metadata file in GCS.
-        file_format (str, optional): The format of the files (e.g., "csv", "parquet"). Defaults to "csv".
+        file_format (str, optional): Format of the files (e.g., "csv", "parquet"). Defaults to "csv".
         read_options (dict, optional): Additional options for reading files into Spark.
-
+        chunk_size (int): Number of rows per chunk to load from each file. Defaults to 1,000,000.
+        
     Returns:
-        Tuple[List[DataFrame], List[str]]: List of Spark DataFrames loaded from new files in GCS and list of new files.
+        Tuple[List[DataFrame], List[str]]: List of Spark DataFrames for new files and list of new file names.
     """
-    
-    # Initialize the metadata file the first time
+    # Initialize the metadata file
     initialize_metadata_file(bucket_name, metadata_file_path)
 
-    # Get the list of all files currently in the directory
+    # Get all files in the directory
     all_files = list_files_in_gcs(bucket_name, directory_path)
-    
-    # Get the list of already processed files
     processed_files = get_processed_files(bucket_name, metadata_file_path)
 
-    # Determine which files are new and need to be processed
+    # Filter for unprocessed files
     new_files = [file for file in all_files if file not in processed_files]
-
     dataframes = []
-    for file in new_files:
-        # Load data from GCS
-        df = (spark.read.format(file_format)
-              .options(**(read_options or {}))
-              .load(f"gs://{bucket_name}/{file}"))
+
+    for file_name in new_files:
+        print(f"Loading file in chunks: {file_name}")
         
-        dataframes.append(df)
+        # Load the file from GCS in chunks to optimize memory usage
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(file_name)
+        file_bytes = blob.download_as_bytes()
+        file_handle = io.BytesIO(file_bytes)
+        
+        # Read the file in chunks and convert each to a Spark DataFrame
+        for chunk in pd.read_csv(file_handle, chunksize=chunk_size, **(read_options or {})):
+            spark_df = spark.createDataFrame(chunk)
+            dataframes.append(spark_df)
+
+        # Update metadata to mark the file as processed
+        update_processed_files(bucket_name, metadata_file_path, file_name)
 
     return dataframes, new_files
 
